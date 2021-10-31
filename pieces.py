@@ -1,16 +1,25 @@
 from operator import add, sub
 class Piece:
 
-    def __init__(self, name, team, x, y):
+    def __init__(self, team, x, y, name):
         self.name = name
         self.team = team
         self.x = x
         self.y = y
 
+    def __str__(self):
+        return f'{self.team} {self.name} on [{self.x}, {self.y}]'
+
+    def __eq__(self, other):
+        return (self.value == self.value)
+
+    def __add__(self, other):
+        return self.value + other.value
+
 class Bishop(Piece):
 
-    @clsmethod
-    def get_diags(x, y):
+    @classmethod
+    def get_diags(cls, x, y):
         ops = [
                 (add, add), (sub, sub),
                 (add, sub), (sub, add)
@@ -31,36 +40,36 @@ class Bishop(Piece):
         return sorted(diags)
 
     def __init__(self, team, x, y):
-        super().__init(name='Bishop', team, x, y)
+        super().__init(team, x, y, name='Bishop')
         self.legal_moves = Bishop.get_moves(self.x, self.y)
+        self.value = 3
 
 class Rook(Piece):
 
-    @clsmethod
-    def get_moves(x, y):
+    @classmethod
+    def get_moves(cls, x, y):
         ops = add, sub
         coords = set()
         for op in ops:
-            coord = set()
             for offset in range(8):
                 op_x = op(x, offset)
                 if (0 <= op_x <= 7):
-                    coord.add((op_x, y))
+                    coords.add((op_x, y))
                 op_y = op(y, offset)
                 if (0 <= op_y <= 7):
-                    coord.add((x, op_y))
-            coords.add(i) for i in coord
+                    coords.add((x, op_y))
 
         return sorted(coords)
 
     def __init__(self, team, x, y):
-        super().__init__(name='Rook', team, x, y)
-        self.legal_moves = Rook.get_moves(x, y)
+        super().__init__(team, x, y, name='Rook')
+        self.legal_moves = Rook.get_moves(self.x, self.y)
+        self.value = 5
 
 class Knight(Piece):
 
-    @clsmethod
-    def get_knightmoves(x, y):
+    @classmethod
+    def get_moves(cls, x, y):
         ops = [
                 ((add, 2), (add, 1)), ((add, 2), (sub, 1)),
                 ((sub, 2), (add, 1)), ((sub, 2), (sub, 1)),
@@ -80,15 +89,35 @@ class Knight(Piece):
 
         return sorted(coords)
 
+    def __init__(self, team, x, y):
+        super().__init__(team, x, y, name='Knight')
+        self.legal_moves = Knight.get_moves(self.x, self.y)
+        self.value = 3
+
 class Queen(Piece):
 
-    @clsmethod
-    def get_queenmoves(x, y):
+    @classmethod
+    def get_moves(cls, x, y):
         return sorted(set(Bishop.get_moves(x, y) + Rook.get_moves(x, y)))
 
+    def __init__(self, team, x, y):
+        super().__init__(team, x, y, name='Queen')
+        self.legal_moves = Queen.get_moves(self.x, self.y)
+        self.value = 9
 
-def get_pawnmoves (x, y):
-    return (x+1, y)
+class Pawn(Piece):
 
+    @classmethod
+    def get_moves(cls, x, y):
+        coords = set()
+        if y+1 <= 7:
+            coords.add((x, y+1))
+        if x+1 <= 7:
+            coords.add((x+1, y+1))
+        if x-1 <= 7:
+            coords.add((x-1, y+1))
 
-print(get_pawnmoves(3, 4))
+    def __init__(self, team, x, y):
+        super().__init__(team, x, y, name='Pawn')
+        self.legal_moves = Pawn.get_moves(self.x, self.y)
+        self.value = 1
