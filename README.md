@@ -1,4 +1,4 @@
-# I'm very bad with html so bear with me
+# I'm very bad with markup so bear with me
 
 I really like chess. I've wanted to learn how to play it since I was a kid, but I never really got into it for one reason or another, up until a couple months ago.
 
