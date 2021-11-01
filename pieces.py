@@ -12,9 +12,16 @@ class Piece:
 
     def __eq__(self, other):
         return (self.value == self.value)
+    
+    def __repr__(self):
+        return f"{self.team} {self.name}"
 
-    def __add__(self, other):
-        return self.value + other.value
+    def update_coords(self, new_x, new_y):
+        if (new_x, new_y) in self.legal_moves:
+            self.x = new_x
+            self.y = new_y
+            print(f"{self.team} {self.name} moved to [{self.x}, {self.y}]")
+
 
 class Bishop(Piece):
 
@@ -53,10 +60,10 @@ class Rook(Piece):
         for op in ops:
             for offset in range(8):
                 op_x = op(x, offset)
-                if (0 <= op_x <= 7):
+                if (0 <= op_x <= 7 and op_x != x):
                     coords.add((op_x, y))
                 op_y = op(y, offset)
-                if (0 <= op_y <= 7):
+                if (0 <= op_y <= 7 and op_y != y):
                     coords.add((x, op_y))
 
         return sorted(coords)
@@ -83,7 +90,7 @@ class Knight(Piece):
             new_y = y_chg[0](y, y_chg[1])
             if (
                     (0 <= new_x <= 7 and 0 <= new_y <= 7) and
-                    (new_x != x and neww_y != y)
+                    (new_x != x and new_y != y)
                 ):
                 coords.add((new_x, new_y))
 
