@@ -26,7 +26,7 @@ class Piece:
 class Bishop(Piece):
 
     @classmethod
-    def get_diags(cls, x, y):
+    def get_moves(cls, x, y):
         ops = [
                 (add, add), (sub, sub),
                 (add, sub), (sub, add)
@@ -47,7 +47,7 @@ class Bishop(Piece):
         return sorted(diags)
 
     def __init__(self, team, x, y):
-        super().__init(team, x, y, name='Bishop')
+        super().__init__(team, x, y, name='Bishop')
         self.legal_moves = Bishop.get_moves(self.x, self.y)
         self.value = 3
 
@@ -111,6 +111,39 @@ class Queen(Piece):
         super().__init__(team, x, y, name='Queen')
         self.legal_moves = Queen.get_moves(self.x, self.y)
         self.value = 9
+
+class King(Piece):
+
+    @classmethod
+    def get_moves(cls, x, y):
+
+        ops = [(add, add), (sub, sub), (add, sub), (sub, add)]
+        moves = set()
+
+        for op_x, op_y, in ops:
+            new_x = op_x(x, 1)
+            new_y = op_y(y, 1)
+            if ((0 <= new_x <= 7) and (0 <= new_y <= 7)):
+                moves.add((new_x, new_y))
+
+
+        ops = add, sub
+        for op in ops:
+            op_x = op(x, 1)
+            op_y = op(y, 1)
+            moves.add((op_x, y))
+            moves.add((x, op_y))
+
+
+        return sorted(moves)
+
+    def __init__(self, team, x, y):
+        super().__init__(team, x, y, name='King')
+        self.legal_moves = King.get_moves(x, y)
+
+
+
+
 
 class Pawn(Piece):
 
