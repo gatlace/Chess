@@ -1,11 +1,15 @@
 class Piece:
     def __init__(self, color, x, y):
         self.color = color
-        self.position = (x, y)
-        self.legal_moves = self.get_legal_moves()
+        self.x = x
+        self.y = y
+        self.legal_moves = []
 
     def __str__(self):
-        return self.color + ' ' + self.__class__.__name__
+        return self.color.capitalize() + ' ' + self.__class__.__name__
+
+    def __repr__(self):
+        return self.color.capitalize() + ' ' + self.__class__.__name__
 
 
 class Pawn(Piece):
@@ -16,24 +20,23 @@ class Pawn(Piece):
 
     def get_legal_moves(self, board):
         moves = []
-        x, y = self.position
+        x, y = self.x, self.y
         if self.color == 'black':
             if y != 6:
-                moves.extend([(x, y+1)])
+                moves.extend([(x, y-1)])
             else:
-                moves.extend([(x, y+1), (x, y+2)]),
+                moves.extend([(x, y-1), (x, y-2)]),
         elif self.color == 'white':
             if y != 1:
-                moves.extend([(x, y + 1)])
+                moves.extend([(x, y+1)])
             else:
-                moves.extend([(x, y + 1),
-                             (x, y + 2)])
+                moves.extend([(x, y+1), (x, y+2)])
 
         self.legal_moves = moves
 
     def get_capture_moves(self):
         moves = []
-        x, y = self.position
+        x, y = self.x, self.y
         if self.color == 'black':
             moves.append((x + 1, y - 1))
             moves.append((x - 1, y - 1))
@@ -56,11 +59,61 @@ class Rook(Piece):
         self.value = 5
 
     def get_legal_moves(self, board):
-        x, y = self.position
-        moves = [(x, i) for i in range(8)]
-        moves.extend([(i, y) for i in range(8)])
+        up, down, left, right = True, True, True, True
+        x, y = self.x, self.y
+        moves = []
+        for i in range(1, 8):
+            if up:
+                if x+i > 7:
+                    up = False
+                    continue
+
+                move = (x+i, y)
+                if board[move[0]][move[1]] == 'e':
+                    moves.append(move)
+                else:
+                    up = False
+                    if board[move[0]][move[1]] != self.color[0]:
+                        moves.append(move)
+            if down:
+                if x-i < 0:
+                    down = False
+                    continue
+
+                move = (x-i, y)
+                if board[move[0]][move[1]] == 'e':
+                    moves.append(move)
+                else:
+                    down = False
+                    if board[move[0]][move[1]] != self.color[0]:
+                        moves.append(move)
+            if left:
+                if y-i < 0:
+                    left = False
+                    continue
+
+                move = (x, y-i)
+                if board[move[0]][move[1]] == 'e':
+                    moves.append(move)
+                else:
+                    left = False
+                    if board[move[0]][move[1]] != self.color[0]:
+                        moves.append(move)
+            if right:
+                if x-i < 0:
+                    right = False
+                    continue
+
+                move = (x - i, y)
+                if board[move[0]][move[1]] == 'e':
+                    moves.append(move)
+                else:
+                    right = False
+                    if board[move[0]][move[1]] != self.color[0]:
+                        moves.append(move)
 
         self.legal_moves = moves
+        return moves
 
 
 class Bishop(Piece):
@@ -70,36 +123,64 @@ class Bishop(Piece):
         self.value = 3
 
     def get_legal_moves(self, board):
-        x, y = self.position
+        x, y = self.x, self.y
         moves = []
 
-        up_left, up_right, down_left, down_right = False, False, False, False
+        up_left, up_right, down_left, down_right = True, True, True, True
         for i in range(1, 8):
             if up_left is True:
-                if x - i > -1 and y - i > -1:
-                    if board[x - i][y - i].color == self.color:
-                        up_left = False
-                    else:
-                        moves.append((x - i, y - i))
-            if up_right is True:
-                if x + i < 8 and y - i > -1:
-                    if board[x + i][y - i].color == self.color:
-                        up_right = False
-                    else:
-                        moves.append((x + i, y - i))
-            if down_left is True:
-                if x - i > -1 and y + i < 8:
-                    if board[x - i][y + i].color == self.color:
-                        down_left = False
-                    else:
-                        moves.append((x - i, y + i))
-            if down_right is True:
-                if x + i < 8 and y + i < 8:
-                    if board[x + i][y + i].color == self.color:
-                        down_right = False
-                    else:
-                        moves.append((x + i, y + i))
+                if x+i > 7 or y-i < 0:
+                    up_left = False
+                    continue
 
+                move = (x+i, y-i)
+                if board[move[0]][move[1]] == 'e':
+                    moves.append(move)
+                else:
+                    up_left = False
+                    if board[move[0]][move[1]] != self.color[0]:
+                        moves.append(move)
+
+            if up_right is True:
+                if x+i > 7 or y+i > 7:
+                    up_right = False
+                    continue
+
+                move = (x+i, y+i)
+                if board[move[0]][move[1]] == 'e':
+                    moves.append(move)
+                else:
+                    up_right = False
+                    if board[move[0]][move[1]] != self.color[0]:
+                        moves.append(move)
+
+            if down_left is True:
+                if x-i < 0 or y-i < 0:
+                    down_left = False
+                    continue
+
+                move = (x-i, y-i)
+                if board[move[0]][move[1]] == 'e':
+                    moves.append(move)
+                else:
+                    down_left = False
+                    if board[move[0]][move[1]] != self.color[0]:
+                        moves.append(move)
+
+            if down_right is True:
+                if x-i < 0 or y+i > 7:
+                    down_right = False
+                    continue
+
+                move = (x-i, y+i)
+                if board[move[0]][move[1]] == 'e':
+                    moves.append(move)
+                else:
+                    down_right = False
+                    if board[move[0]][move[1]] != self.color[0]:
+                        moves.append(move)
+
+        self.legal_moves = moves
         return moves
 
 
@@ -109,8 +190,8 @@ class Queen(Rook, Bishop):
         self.type = 'queen'
         self.value = 9
 
-    def get_legal_moves(self):
-        return Rook.get_legal_moves(self).extend(Bishop.get_legal_moves(self))
+    def get_legal_moves(self, board):
+        return Rook.get_legal_moves(self, board).extend(Bishop.get_legal_moves(self, board))
 
 
 class Knight(Piece):
@@ -119,8 +200,8 @@ class Knight(Piece):
         self.type = 'knight'
         self.value = 3
 
-    def get_legal_moves(self):
-        x, y = self.position
+    def get_legal_moves(self, board):
+        x, y = self.x, self.y
         moves = [
             (x + 1, y + 2),
             (x + 1, y - 2),
@@ -136,8 +217,11 @@ class Knight(Piece):
             x, y = move
             if x < 0 or x > 7 or y < 0 or y > 7:
                 moves.remove(move)
+                continue
+            if board[x][y] == self.color[0]:
+                moves.remove(move)
 
-        return moves
+        self.legal_moves = moves
 
 
 class King(Piece):
@@ -146,8 +230,8 @@ class King(Piece):
         self.type = 'king'
         self.value = 100
 
-    def get_legal_moves(self):
-        x, y = self.position
+    def get_legal_moves(self, board):
+        x, y = self.x, self.y
         moves = [
             (x + 1, y + 1),
             (x + 1, y),
@@ -164,7 +248,7 @@ class King(Piece):
             if x < 0 or x > 7 or y < 0 or y > 7:
                 moves.remove(move)
 
-        return moves
+        self.legal_moves = moves
 
 
 class Empty(Piece):
