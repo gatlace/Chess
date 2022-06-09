@@ -1,61 +1,83 @@
 from pieces import *
+
+
 class Board:
 
     def __init__(self):
-        self.grid = [['x' for i in range(8)] for i in range(8)]
+        self.teams = ()
+        self.board = [[Empty('', i, j) for i in range(8)]
+                      for j in range(8)]
+        self.turn = 'white'
 
-    def contents(self):
+    def init_game(self):
+        self.board[0] = [
+            Rook('white', 0, 0), Knight('white', 1, 0), Bishop('white', 2, 0), Queen('white', 3, 0), King(
+                'white', 4, 0), Bishop('white', 5, 0), Knight('white', 6, 0), Rook('white', 7, 0)
+        ]
+        self.board[1] = [
+            Pawn('white', 0, 1), Pawn('white', 1, 1), Pawn('white', 2, 1), Pawn('white', 3, 1), Pawn(
+                'white', 4, 1), Pawn('white', 5, 1), Pawn('white', 6, 1), Pawn('white', 7, 1)
+        ]
 
-        def reversed_list(lst):
-            result = []
-            for e in lst:
-                if isinstance(e, list):
-                    result.append(reversed_list(e))
+        self.board[7] = [
+            Rook('black', 0, 7), Knight('black', 1, 7), Bishop('black', 2, 7), Queen('black', 3, 7), King(
+                'black', 4, 7), Bishop('black', 5, 7), Knight('black', 6, 7), Rook('black', 7, 7)
+        ]
+
+        self.board[6] = [
+            Pawn('black', 0, 6), Pawn('black', 1, 6), Pawn('black', 2, 6), Pawn('black', 3, 6), Pawn(
+                'black', 4, 6), Pawn('black', 5, 6), Pawn('black', 6, 6), Pawn('black', 7, 6)
+        ]
+
+    def print_board(self):
+        ranks = "12345678"
+        files = "abcdefgh"
+        return_string = ""
+
+        for i in range(7, -1, -1):
+            return_string += ranks[i] + " |"
+            for j in range(8):
+                return_string += "{:^14}".format(str(self._board[i][j]))
+                return_string += "|"
+            return_string += "\n"
+        return_string += "  "
+
+        for i in files:
+            return_string += "{:^15}".format(i)
+
+        return return_string
+
+    def teams_board(self):
+        new_board = []
+        for row in self.board:
+            new_row = []
+            for piece in row:
+                if piece.color == '':
+                    new_row.append('e')
                 else:
-                    result.append(e)
+                    new_row.append(piece.color[0])
+            new_board.append(new_row)
 
-            result.reverse()
+        return new_board
 
-            return result
+    def get_legal_moves(self):
+        pieces = []
+        if self.turn == 'white':
+            for row in self.board:
+                for piece in row:
+                    if piece.color == 'white':
+                        pieces.append(piece)
+        elif self.turn == 'black':
+            for row in self.board:
+                for piece in row:
+                    if piece.color == 'black':
+                        pieces.append(piece)
 
-        print(*reversed_list(self.grid), sep = "\n")
+        for piece in pieces:
+            piece.get_legal_moves(self.teams_board())
 
-    def is_empty(self, x, y):
-        if self.grid[y][x] == 'x':
-            return True
-        return False
-
-    def make_new_piece(self, piece, team, x, y):
-        if self.is_empty(x, y):
-            created_piece = self.grid[y][x] = piece(team, x, y)
-            print(f"{created_piece.team} {created_piece.name} created on \
-                    [{created_piece.x}, {created_piece.y}]")
-
-    def move(self, piece, new_x, new_y):
-        if (new_x, new_y) in piece.legal_moves:
-            self.grid[new_x][new_y] = piece
-            self.grid[piece.x][piece.y] = 'x'
-            piece.update_coords(new_x, new_y)
-
-    def reset_board(self):
-        for i in range(8):
-            self.make_new_piece(Pawn, 'White', i, 1)
-            self.make_new_piece(Pawn, 'Black', i, 6)
-
-        pieces = (Rook, Knight, Bishop)
-        for i in range(3):
-            piece = pieces[i]
-            self.make_new_piece(piece, 'White', 7-i, 0)
-            self.make_new_piece(piece, 'White', 0+i, 0)
-            self.make_new_piece(piece, 'Black', 7-i, 7)
-            self.make_new_piece(piece, 'Black', 0+i, 7)
-
-        self.make_new_piece(Queen, 'White', 3, 0)
-        self.make_new_piece(King, 'White', 4, 0)
-        self.make_new_piece(Queen, 'Black', 3, 7)
-        self.make_new_piece(King, 'White', 4, 7)
 
 board = Board()
-board.reset_board()
-board.contents()
+board.init_game()
 
+print(board.teams_board())
