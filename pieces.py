@@ -1,9 +1,23 @@
+"""Piece definitions"""
+
+
 class Piece:
+    """Generic Piece; not used directly"""
+
     def __init__(self, color, x, y):
-        self.color = color
-        self.x = x
-        self.y = y
-        self.legal_moves = []
+        self.color: str = color
+        self.x: int = x
+        self.y: int = y
+        self.legal_moves: list[tuple] = []
+
+    @property
+    def position(self):
+        """returns a tuple of the position of the piece"""
+        return self.x, self.y
+
+    @position.setter
+    def position(self, position):
+        self.x, self.y = position
 
     def __str__(self):
         return self.color.capitalize() + ' ' + self.__class__.__name__
@@ -11,8 +25,13 @@ class Piece:
     def __repr__(self):
         return self.color.capitalize() + ' ' + self.__class__.__name__
 
+    def get_legal_moves(self, board: list[list[str]]):
+        """Get legal moves for this piece"""
+
 
 class Pawn(Piece):
+    """Pawn"""
+
     def __init__(self, color, x, y):
         super().__init__(color, x, y)
         self.type = 'pawn'
@@ -25,7 +44,7 @@ class Pawn(Piece):
             if y != 6:
                 moves.extend([(x, y-1)])
             else:
-                moves.extend([(x, y-1), (x, y-2)]),
+                moves.extend([(x, y-1), (x, y-2)])
         elif self.color == 'white':
             if y != 1:
                 moves.extend([(x, y+1)])
@@ -35,6 +54,7 @@ class Pawn(Piece):
         self.legal_moves = moves
 
     def get_capture_moves(self):
+        """Gets special moves for pawns"""
         moves = []
         x, y = self.x, self.y
         if self.color == 'black':
@@ -259,6 +279,3 @@ class Empty(Piece):
 
     def get_legal_moves(self):
         return []
-
-
-bishop = Bishop('white', 4, 5)
