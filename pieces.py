@@ -52,8 +52,9 @@ class Pawn(Piece):
                 moves.extend([(x, y+1), (x, y+2)])
 
         self.legal_moves = moves
+        self.legal_moves.extend(self.get_capture_moves(board))
 
-    def get_capture_moves(self):
+    def get_capture_moves(self, board):
         """Gets special moves for pawns"""
         moves = []
         x, y = self.x, self.y
@@ -64,144 +65,119 @@ class Pawn(Piece):
             moves.append((x + 1, y + 1))
             moves.append((x - 1, y + 1))
 
-        for move in moves:
+        for move in moves[:]:
             x, y = move
             if x < 0 or x > 7 or y < 0 or y > 7:
+                moves.remove(move)
+            elif board[y][x] == self.color[0] or board[y][x] == 'e':
                 moves.remove(move)
 
         return moves
 
 
 class Rook(Piece):
+    @classmethod
+    def get_rook_moves(cls, position, board):
+        up, down, left, right = True, True, True, True
+        x, y = position
+        moves = []
+
+        for i in range(8):
+            if up:
+                try:
+                    if board[y-i][x] == 'e':
+                        moves.append((x, y-i))
+                    else:
+                        up = False
+                except IndexError:
+                    up = False
+            if down:
+                try:
+                    if board[y+i][x] == 'e':
+                        moves.append((x, y+i))
+                    else:
+                        down = False
+                except IndexError:
+                    down = False
+            if left:
+                try:
+                    if board[y][x-i] == 'e':
+                        moves.append((x-i, y))
+                    else:
+                        left = False
+                except IndexError:
+                    left = False
+            if right:
+                try:
+                    if board[y][x+i] == 'e':
+                        moves.append((x+i, y))
+                    else:
+                        right = False
+                except IndexError:
+                    right = False
+
+            return moves
+
     def __init__(self, color, x, y):
         super().__init__(color, x, y)
         self.type = 'rook'
         self.value = 5
 
+
     def get_legal_moves(self, board):
-        up, down, left, right = True, True, True, True
-        x, y = self.x, self.y
-        moves = []
-        for i in range(1, 8):
-            if up:
-                if x+i > 7:
-                    up = False
-                    continue
-
-                move = (x+i, y)
-                if board[move[0]][move[1]] == 'e':
-                    moves.append(move)
-                else:
-                    up = False
-                    if board[move[0]][move[1]] != self.color[0]:
-                        moves.append(move)
-            if down:
-                if x-i < 0:
-                    down = False
-                    continue
-
-                move = (x-i, y)
-                if board[move[0]][move[1]] == 'e':
-                    moves.append(move)
-                else:
-                    down = False
-                    if board[move[0]][move[1]] != self.color[0]:
-                        moves.append(move)
-            if left:
-                if y-i < 0:
-                    left = False
-                    continue
-
-                move = (x, y-i)
-                if board[move[0]][move[1]] == 'e':
-                    moves.append(move)
-                else:
-                    left = False
-                    if board[move[0]][move[1]] != self.color[0]:
-                        moves.append(move)
-            if right:
-                if x-i < 0:
-                    right = False
-                    continue
-
-                move = (x - i, y)
-                if board[move[0]][move[1]] == 'e':
-                    moves.append(move)
-                else:
-                    right = False
-                    if board[move[0]][move[1]] != self.color[0]:
-                        moves.append(move)
-
-        self.legal_moves = moves
-        return moves
+        self.legal_moves = Rook.get_rook_moves(self.position, board)
 
 
 class Bishop(Piece):
+    @classmethod
+    def get_bishop_moves(cls, position, board):
+        moves = []
+        x, y = position
+
+        up_left, up_right, down_left, down_right = True, True, True, True
+        for i in range(1, 8):
+            if up_left:
+                try:
+                    if board[y-i][x-i] == 'e':
+                        moves.append((x-i, y-i))
+                    else:
+                        up_left = False
+                except IndexError:
+                    up_left = False
+            if up_right:
+                try:
+                    if board[y-i][x+i] == 'e':
+                        moves.append((x+i, y-i))
+                    else:
+                        up_right = False
+                except IndexError:
+                    up_right = False
+            if down_left:
+                try:
+                    if board[y+i][x-i] == 'e':
+                        moves.append((x-i, y+i))
+                    else:
+                        down_left = False
+                except IndexError:
+                    down_left = False
+            if down_right:
+                try:
+                    if board[y+i][x+i] == 'e':
+                        moves.append((x+i, y+i))
+                    else:
+                        down_right = False
+                except IndexError:
+                    down_right = False
+
+        return moves
+
     def __init__(self, color, x, y):
         super().__init__(color, x, y)
         self.type = 'bishop'
         self.value = 3
 
     def get_legal_moves(self, board):
-        x, y = self.x, self.y
-        moves = []
-
-        up_left, up_right, down_left, down_right = True, True, True, True
-        for i in range(1, 8):
-            if up_left is True:
-                if x+i > 7 or y-i < 0:
-                    up_left = False
-                    continue
-
-                move = (x+i, y-i)
-                if board[move[0]][move[1]] == 'e':
-                    moves.append(move)
-                else:
-                    up_left = False
-                    if board[move[0]][move[1]] != self.color[0]:
-                        moves.append(move)
-
-            if up_right is True:
-                if x+i > 7 or y+i > 7:
-                    up_right = False
-                    continue
-
-                move = (x+i, y+i)
-                if board[move[0]][move[1]] == 'e':
-                    moves.append(move)
-                else:
-                    up_right = False
-                    if board[move[0]][move[1]] != self.color[0]:
-                        moves.append(move)
-
-            if down_left is True:
-                if x-i < 0 or y-i < 0:
-                    down_left = False
-                    continue
-
-                move = (x-i, y-i)
-                if board[move[0]][move[1]] == 'e':
-                    moves.append(move)
-                else:
-                    down_left = False
-                    if board[move[0]][move[1]] != self.color[0]:
-                        moves.append(move)
-
-            if down_right is True:
-                if x-i < 0 or y+i > 7:
-                    down_right = False
-                    continue
-
-                move = (x-i, y+i)
-                if board[move[0]][move[1]] == 'e':
-                    moves.append(move)
-                else:
-                    down_right = False
-                    if board[move[0]][move[1]] != self.color[0]:
-                        moves.append(move)
-
-        self.legal_moves = moves
-        return moves
+        self.legal_moves = Bishop.get_bishop_moves(self.position, board)
 
 
 class Queen(Rook, Bishop):
@@ -211,7 +187,8 @@ class Queen(Rook, Bishop):
         self.value = 9
 
     def get_legal_moves(self, board):
-        return Rook.get_legal_moves(self, board).extend(Bishop.get_legal_moves(self, board))
+        self.legal_moves = Bishop.get_bishop_moves(self.position, board)
+        print(self.legal_moves)
 
 
 class Knight(Piece):
@@ -233,12 +210,13 @@ class Knight(Piece):
             (x - 2, y - 1)
         ]
 
-        for move in moves:
+        for move in moves[:]:
             x, y = move
             if x < 0 or x > 7 or y < 0 or y > 7:
                 moves.remove(move)
                 continue
-            if board[x][y] == self.color[0]:
+
+            if board[y][x] == self.color[0]:
                 moves.remove(move)
 
         self.legal_moves = moves
@@ -263,9 +241,13 @@ class King(Piece):
             (x - 1, y - 1)
         ]
 
-        for move in moves:
+        for move in moves[:]:
             x, y = move
             if x < 0 or x > 7 or y < 0 or y > 7:
+                moves.remove(move)
+                continue
+
+            if board[y][x] == self.color[0]:
                 moves.remove(move)
 
         self.legal_moves = moves
